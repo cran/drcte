@@ -1,0 +1,58 @@
+# Imports
+import(mclust)
+importFrom("graphics", "lines", "par", "points", "polygon")
+importFrom("sandwich", "estfun", "bread", "sandwich", "vcovCL")
+importFrom("drc", "drm", "LL.3", "ED", "estfun.drc")
+importFrom("stats", "as.formula", "binom.test", "coef", "complete.cases",
+           "deviance", "df.residual", "end", "fitted", "getCall",
+           "logLik", "median", "model.extract", "model.frame",
+           "model.matrix", "model.response", "model.weights",
+           "na.omit", "nls", "optim", "pchisq", "plogis", "pnorm", "ppoints",
+           "predict", "residuals", "terms", "deriv", "lm", "sortedXyData", "printCoefmat",
+           "na.pass", "qnorm", "qt", "vcov", "quantile", "sd", "update",
+           "dnorm")
+importFrom("utils", "head", "tail", "stack")
+importFrom("survival", "strata")
+importFrom("grDevices", "gray")
+importFrom("lmtest", "coeftest")
+importFrom("dplyr", "arrange", "select")
+importFrom("tidyr", "pivot_longer")
+importFrom("multcomp", "parm")
+importFrom("MASS", "ginv")
+importFrom("methods", "is")
+
+# Exports: general
+export(drmte, drmteControl, loglogistic, loglogisticSurv,
+       lognormal, KDE, KDE.fun, NPMLE,
+       compCDF, melt_te, decumulate_te, group_te, ungroup_te,
+       plotData) # jack.drcte, boot.drcte
+
+# Hydro-time models
+# export(PmaxPsi1.fun, PmaxPsi1,
+#        GRPsiLin, GRPsiLin.fun,
+#        GRPsiPol, GRPsiPol.fun,
+#        GRPsiPol2, GRPsiPol2.fun,
+#        HTE1, HTE1.fun, HTLL)
+# # Thermal-time models
+# export(TTEM, TTEM.fun, PmaxT1.fun, PmaxT1,
+#        GRT.M.fun, GRT.M)
+
+# Service functions
+# export(NLSLL.3)
+
+## S3 methods
+S3method(summary, drcte)
+S3method(summary, drcteList)
+S3method(plot, drcte)
+S3method(coef, drcte)
+S3method(predict, drcte)
+S3method(predict, list)
+S3method(predict, llogistic)
+S3method(ED, drcte)
+S3method(quantile, drcte)
+S3method(quantile, drcteList)
+S3method(print, drcte)
+S3method(print, summary.drcte)
+S3method(bread, drcte)
+S3method(estfun, drcte)
+S3method(vcov, drcte)
