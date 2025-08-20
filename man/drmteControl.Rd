@@ -17,7 +17,7 @@
 
 \arguments{
   \item{constr}{logical. If TRUE optimisation is constrained, only yielding non-negative parameters.}
-  \item{errorm}{logical specifying whether failed convergence in \code{\link{drm}} should result
+  \item{errorm}{logical specifying whether failed convergence in \code{\link{drmte}} should result
     in an error or only a warning.}
   \item{maxIt}{numeric. The maximum number of iterations in the optimisation procedure.}
   \item{method}{character string. The method used in the optimisation procedure.
@@ -42,8 +42,7 @@
 
 \author{Christian Ritz}
 
-\note{
-  none, yet.}
+\note{none, yet.}
 
 \examples{
 ### Displaying the default settings

@@ -43,6 +43,8 @@ ED.drcte <- function(object, respLev, interval = c("none", "delta", "boot"),
         }
         # When I call EDpar, respLev is within ]0,1[, except for the
         # internal drc functions
+    # print(probLev)
+
         EDmat <- suppressWarnings(EDpar(object = object,
                  respLev = probLev, #ifelse(type == "absolute", respLev/100, respLev),
                  interval = interval, clevel = clevel, level = level,
@@ -137,7 +139,7 @@ ED.drcte <- function(object, respLev, interval = c("none", "delta", "boot"),
       if(type == "absolute") {
         cat(paste("Estimated quantiles", "\n", sep = ""))
       } else {
-        cat(paste("Estimated quantiles (restricted to germinated fraction)", "\n", sep = ""))
+        cat(paste("Estimated quantiles (restricted to fraction with event)", "\n", sep = ""))
       }
 
         if (identical(interval, "boot"))

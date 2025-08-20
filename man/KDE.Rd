@@ -47,7 +47,7 @@ data(chickweed)
 mod <- drmte(count ~ start + end, data=chickweed,
               fct = KDE())
 summary(mod)
-plot(mod, ylim = c(0, 0.25), log = "")
+plot(mod, ylim = c(0, 0.25))
 }
 \keyword{ time-to-event models }
 \keyword{ kernel density estimator }

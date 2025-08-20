@@ -28,8 +28,10 @@ summary.drcte <- function(object,
     "df.residual", "cov.unscaled", "text", "noParm", "rseMat")
     sumObj$robust <- "no"
 
-  }  else if(object$fit$method == "NPMLE")
-    {
+
+
+
+    }  else if(object$fit$method == "NPMLE") {
     parVec <- NULL
     varMat <- NULL
     resVar <- NULL
@@ -44,8 +46,8 @@ summary.drcte <- function(object,
     names(sumObj) <- c("resVar", "varMat", "coefficients", "boxcox", "fctName", "robust", "varParm", "type",
     "df.residual", "cov.unscaled", "text", "noParm", "rseMat")
     sumObj$robust <- "no"
-    } else {
 
+    } else {
     type <- match.arg(type)
     if(type == "bootstrap"){
       stop("Bootstrap standard errors are not yet implemented.")
@@ -86,12 +88,25 @@ summary.drcte <- function(object,
       sumObj$robust <- "Robust sandwich SEs"
     } else {
       class(object) <- "drc"
-      sumObj <- summary(object)
+      sumObj <- summary(object) # uses the drc package
       sumObj$robust <- "no"
     }
     }
-  sumObj$resVar <- NULL
+  if(!is.null(object$fct$linkFct)){
+    # Back-transform parameter values, wherever necessary
+      sumObj$coefficientsOr <- sumObj$coefficients
+      pars <- coef(object)
+      names(pars) <- names(object$fct$linkFct())
+      ses <- summary(object)$coefficients[,2]
+      res <- lapply(1:2, function(i) car::deltaMethod(object = pars[i],
+                                                 g. = object$fct$linkFct()[i],
+                                                 vcov. = ses[i]^2))
+      res <- do.call(rbind, res)
+      row.names(res) <- names(pars)
+      sumObj$backCoefficients <- res
+  }
 
+  sumObj$resVar <- NULL
   class(sumObj) <- c("summary.drcte", "summary.drc")
   return(sumObj)
 }

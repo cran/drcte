@@ -43,7 +43,9 @@ display = TRUE, pool = TRUE, logBase = NULL, multcomp = FALSE, ...)
     }
     })
     # options(warn = 0)  # normalizing behaviour of warnings
-
+    # Edited on 3/5/2024. Avoids bug when all paremetrs are
+    # constrained except one
+    if(is.vector(indexMat)) indexMat <- matrix(indexMat, 1, 1)
     strParm0 <- curveNames[curveOrder]
     indexMat <- indexMat[, curveOrder, drop = FALSE]
     parmMat <- parmMat[, curveOrder, drop = FALSE]

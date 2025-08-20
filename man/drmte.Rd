@@ -14,21 +14,23 @@ A general platform for the analysis of seed germination/emergence and other time
 }
 
 \arguments{
-  \item{formula}{a symbolic description of the model to be fit. I must be in the form 'count \eqn{~} start + end', where count is the number of events observed in the interval between 'start' and 'end'. Other variables can be specified after the 'start' and 'end', as needed to fit, e.g. hydro-time or thermal-time models.}
-\item{curveid}{a numeric vector or factor containing the grouping of the data.}
-\item{pmodels}{a data frame with a many columns as there are parameters in the non-linear function.
+  \item{formula}{a symbolic description of the model to be fit. I must be in the form 'count \eqn{~} start + end', where count is the number
+  of events observed in the interval between 'start' and 'end'. Other variables can be specified after the 'start' and 'end', as needed to fit,
+  e.g., hydro-time or thermal-time models.}
+  \item{fct}{a list with three or more elements specifying the distribution of event times, the accompanying self starter function, the names
+  of the parameter in the non-linear function and, optionally, the first and second derivatives as well as information used for the calculation
+  of quantiles. Currently available distributions are the exponential Cumulative Distribution Function \code{\link{exponential}}, the log-normal
+  CDF \code{\link{lognormal}} and the log-logistic CDF \code{\link{loglogistic}}. All these CDF permit the inclusion of a fraction without
+  the event  at the end of the assay ('cured' fraction). Several nonlinear functions in the 'drc' package can also be used for the distribution
+  of event-times, such as the three-parameter log-logistic model \code{\link[drc]{LL.3}}, the three-parameter Weibull type-1 model
+  \code{\link[drc]{W1.3}} and the Weibull type-2 model \code{\link[drc]{W2.3}}.}
+  \item{curveid}{a numeric vector or factor containing the grouping of the data.}
+  \item{pmodels}{a data frame with a many columns as there are parameters in the non-linear function.
   Or a list containing a formula for each parameter in the nonlinear function.}
-\item{data}{an optional data frame containing the variables in the model.}
-\item{subset}{an optional vector specifying a subset of observations to be used in the fitting process.}
-\item{fct}{a list with three or more elements specifying the non-linear
-  function, the accompanying self starter function, the names of the parameter in the non-linear function and,
-  optionally, the first and second derivatives as well as information used for calculation of ED values.
-  Currently available functions include, among others, the four- and five-parameter log-logistic models
-  \code{\link{LL.4}}, \code{\link{LL.5}} and the Weibull model \code{\link{W1.4}}. Use
-  \code{\link{getMeanFunctions}} for a full list.}
-
-\item{type}{a character string specifying the distribution of the data (parameter estimation will depend on the assumed distribution as different log likelihood functions will be used). The default is "event", implying a multinomial distribution.}
-\item{start}{an optional numeric vector containing starting values for all mean parameters in the model.
+  \item{data}{an optional data frame containing the variables in the model.}
+  \item{subset}{an optional vector specifying a subset of observations to be used in the fitting process.}
+  \item{type}{a character string specifying the distribution of the data (parameter estimation will depend on the assumed distribution as different log likelihood functions will be used). The default is "event", implying a multinomial distribution.}
+  \item{start}{an optional numeric vector containing starting values for all mean parameters in the model.
   Overrules any self starter function.}
 
 \item{na.action}{a function for treating mising values ('NA's). Default is \code{\link{na.omit}}.}
@@ -55,7 +57,7 @@ A general platform for the analysis of seed germination/emergence and other time
 
 \details{
   This function relies on the general optimiser function \code{\link{optim}} for the minimisation of negative log likelihood function.
-The control arguments are specified using the function \code{\link{drmc}}.
+The control arguments are specified using the function \code{\link[drc]{drmc}}.
 
 Setting \code{lowerl} and/or \code{upperl} automatically invokes constrained optimisation.
 

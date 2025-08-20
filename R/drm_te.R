@@ -4,11 +4,6 @@ control = drmteControl(), lowerl = NULL, upperl = NULL, separate = FALSE,
 pshifts = NULL, varcov = NULL){
 
   ## Get all arguments from call ############################
-  ## Matching argument values
-  # oldOpt <- options()
-  # oldPar <- par(no.readonly = TRUE)
-  # on.exit(options(oldOpt), add = T)
-  # on.exit(par(oldPar), add = T)
   bcVal <- NULL
   bcAdd <- 0
   robust = "mean"
@@ -19,18 +14,13 @@ pshifts = NULL, varcov = NULL){
 
   useD <- control$"useD"
   constrained <- control$"constr"
-  # maxDose <- control$"maxDose"
   maxIt <- control$"maxIt"
   optMethod <- control$"method"
   relTol <- control$"relTol"
   warnVal <- control$"warnVal"
-  # zeroTol <- control$"zeroTol"
-  # bcConstant <- bcAdd
   rmNA <- control$"rmNA"  # in drmEM...
   errorMessage <- control$"errorm"  # in drmOpt
   noMessage <- control$"noMessage"  # reporting finding control measurements?
-#    trace <- control$"trace"
-#    otrace <- control$"otrace"
   dscaleThres <- control$"dscaleThres"
   rscaleThres <- control$"rscaleThres"
   conCheck <- control$"conCheck"
@@ -247,10 +237,13 @@ pshifts = NULL, varcov = NULL){
          grepl("W1.3(", fctName, fixed=TRUE) |
          grepl("W2.3(", fctName, fixed=TRUE) |
          grepl("G.3(",  fctName, fixed=TRUE) |
+         grepl("lognormal",  fctName, fixed=TRUE) |
+         grepl("exponential",  fctName, fixed=TRUE) |
          grepl("loglogistic",  fctName, fixed=TRUE) ){
 
         ## edited on 18/08/22: retransform into a factor assayNoOld
         # to avoid problems when the dataset is subsetted
+
          returnList <- by(data, factor(assayNoOld),
                          function(g)  drmte_sep1(formula = formula,
                                                data = g, subset = subset,
@@ -503,7 +496,7 @@ pshifts = NULL, varcov = NULL){
     #     isfi <- is.finite(dose)  # removing infinite dose values
 
     ## Combining curves (NPMLE fit) ###############
-        if (identical(type, "event"))
+        if (identical(type, "event") | identical(type, "event2"))
         {
           # If necessary, several curves are combined by using different methods
           # based on the NPcdf function.
@@ -653,13 +646,12 @@ pshifts = NULL, varcov = NULL){
     ## Defining non-linear function ---------------------------------
 
     ## Defining model function
-    # Dose: variabili indipendenti iniziali
+    # Dose: contains all independent variables (original unscaled)
     # parm2mat: function to convert parameter vector into matrix
     # drcFct: mean function
     # cm: NULL ?
     multCurves <- modelFunction(dose, parm2mat, drcFct, cm, assayNoOld, upperPos, fct$"retFct",
                                 doseScaling, respScaling, isFinite = rep(TRUE, lenData), pshifts)
-
     ## Defining first derivative (if available) ... used once in drmEMls()
     if (!is.null(dfct1))
     {
@@ -727,11 +719,15 @@ pshifts = NULL, varcov = NULL){
     #                              dist.type = ifelse(type == "negbin1", 1, 2))
     # }
 
-    if (identical(type, "event"))
-    {
-      estMethod <- drmEMeventtime(dose, resp, multCurves2, doseScaling = doseScaling)
-      }
-
+    if (identical(type, "event")){
+      estMethod <- drmEMeventtime(dose, resp, multCurves2,
+                                  doseScaling = doseScaling)
+    } else if (identical(type, "event2")) {
+      # Yet to be programmed, for uncensored observations
+      stop("Uncensored observations are not supported, yet")
+      # estMethod <- drmEMeventtimeUnc(dose, resp, multCurves2,
+      #                             doseScaling = doseScaling)
+    }
 
     opfct <- estMethod$opfct
 
@@ -805,9 +801,10 @@ pshifts = NULL, varcov = NULL){
     # opdfct1: NULL
     # startVecSc: starting values
     # parmVec: parameter names with curveid value
+    # drmOpt: function that performs the optimisation
 
     if(fctName == "NPMLE()"){
-      ## this is not optimisisng, more returning the NPMLE fit
+      ## this is not optimising, more returning the NPMLE fit
       nlsFit <- list()
       retObj <- NPcdfList
       retList1 <- lapply(retObj, function(x) x$SurvObjSum)
@@ -832,7 +829,9 @@ pshifts = NULL, varcov = NULL){
       nlsFit$icfitObj <- retList1
       nlsFit$icfitObjFull <- retList2
 
-    } else if(fctName == "KDE()"){
+
+
+      } else if(fctName == "KDE()"){
       ## KDE fit
       nlsFit <- list()
       count <- origResp #data[,varNames0[1]]
@@ -862,7 +861,8 @@ pshifts = NULL, varcov = NULL){
       nlsFit$ovalue <- NULL
       nlsFit$method <- "KDE"
       nlsFit$KDEmethod <- fct$bw
-    } else {
+
+      } else {
       ## parametric fit
       nlsFit <- drmOpt(opfct, opdfct1, startVecSc, optMethod, constrained, warnVal,
       upperLimits, lowerLimits, errorMessage, maxIt, relTol, parmVec = parmVec,
@@ -873,7 +873,7 @@ pshifts = NULL, varcov = NULL){
     if (!nlsFit$convergence) {return(nlsFit)}
 
     ## Manipulating after optimisation ###################
-    if (identical(type, "event"))
+    if (identical(type, "event") | identical(type, "event2"))
     {
     # # 9/4/19 - Correction by Andrea
     # assayNo0 <- assayNo[isFinite]
@@ -1042,7 +1042,7 @@ pshifts = NULL, varcov = NULL){
     ## 9/4/2019 - Andrea Onofri. The original routine did
     ## not appear to work with type = "event". Therefore I
     ## parted the two routines
-    if (identical(type, "event"))
+    if (identical(type, "event") | identical(type, "event2"))
     {
         dose <- dose[,-1]
         if(fctName == "KDE()"){
@@ -1126,7 +1126,7 @@ pshifts = NULL, varcov = NULL){
     # 17/11/20 CORRECTED HERE
     lengX <- ifelse(anName != "1", length(varNames0) - 1, length(varNames0))
     if(anName == "1") anName <- "curveid"
-    if (identical(type, "event"))
+    if (identical(type, "event") | identical(type, "event2"))
     {
         #names(dataSet) <- c(varNames0[c(2, 3, 1)], anName, paste("orig.", anName, sep = ""), "weights")
         names(dataSet) <- c(varNames0[c(2:lengX, 1)], anName, paste("orig.", anName, sep = ""),
@@ -1181,7 +1181,7 @@ pshifts = NULL, varcov = NULL){
     # curveid = assayNoOld, resp = as.vector(resp),
     # names = list(dName = varNames[1], orName = varNames[2], wName = wName, cNames = anName, rName = ""))
 
-    if (identical(type, "event"))
+    if (identical(type, "event") | identical(type, "event2"))
     {
       # For compatibility with 'drm()' returns the data for plotting
       # i.e., the end-point estimator
@@ -1268,180 +1268,5 @@ pshifts = NULL, varcov = NULL){
     "dataList", "coefficients", "boxcox", "indexMat2", "ICfit")
     class(returnList) <- c("drcte", "drc")
     return(returnList)
-}
-
-"drmEMeventtime" <-
-function(dose, resp, multCurves, doseScaling = 1)
-{
-    ## Defining the objective function
-    opfct <- function(c)  # dose, resp and weights are fixed
-    {
-      Fstart <- multCurves(dose[, -2] / doseScaling, c)
-      dose2 <- dose[, -1]
-      Fend <- multCurves(dose2 / doseScaling, c)
-
-      ifelse(is.matrix(dose2)==T,
-             Fend[is.finite(dose2[, 1])==F] <- 1,
-             Fend[!is.finite(dose2)] <- 1)
-
-      temp <- Fend - Fstart
-      temp[temp==0] <- 10e-8
-
-      return( -sum(resp * log(temp)) )
-        # minus in front of sum() as maximization is done as minimization
-    }
-
-
-    ## Defining self starter function
-    ssfct <- NULL
-
-
-    ## Defining the log likelihood function
-    llfct <- function(object)
-    {
-#        total <- (object$"data")[iv, 5]
-#        success <- total*(object$"data")[iv, 2]
-#        c( sum(log(choose(total, success))) - object$"fit"$"ofvalue", object$"sumList"$"df.residual" )
-
-        c(
-        -object$"fit"$value,  # oops a constant is missing!
-        object$"sumList"$"df.residual"
-        )
-    }
-
-
-    ## Defining functions returning the residual variance, the variance-covariance and the fixed effects estimates
-    rvfct <- NULL
-
-    vcovfct <- function(object)
-    {
-        solve(object$fit$hessian)
-    }
-
-    parmfct <- function(fit, fixed = TRUE)
-    {
-        fit$par
-    }
-
-
-    ## Returning list of functions
-    return(list(llfct = llfct, opfct = opfct, ssfct = ssfct, rvfct = rvfct, vcovfct = vcovfct,
-    parmfct = parmfct))
-}
-
-
-"drmLOFeventtime" <- function()
-{
-    return(list(anovaTest = NULL, gofTest = NULL))
-}
-
-"drmOpt" <-
-function(opfct, opdfct1, startVec, optMethod, constrained, warnVal,
-upperLimits, lowerLimits, errorMessage, maxIt, relTol, opdfct2 = NULL, parmVec, traceVal, silentVal = TRUE,
-matchCall)
-
-## propagate "silentVal" from calling function?
-{
-   #print(lowerLimits)
-   #print(upperLimits)
-   #print(startVec)
-   #print(opfct)
-  # print(dose)
-   #print(opfct(startVec))
-
-    ## Controlling the warnings
-    op1 <- options(warn = warnVal)
-    on.exit(options(op1), add=TRUE)
-
-    ## Calculating hessian
-    if (is.null(opdfct2)) {hes <- TRUE} else {hes <- FALSE}
-
-    ## Setting scaling parameters for optim()
-    psVec <- abs(startVec)
-    psVec[psVec < 1e-4] <- 1
-
-    ## Derivatives are used
-    {if (!is.null(opdfct1))
-    {
-        if (constrained)
-        {
-            nlsObj <- try(optim(startVec, opfct, opdfct1, hessian = hes, method = "L-BFGS-B",
-            lower = lowerLimits, upper = upperLimits,
-            control = list(maxit = maxIt, reltol = relTol, parscale = psVec)), silent = silentVal)
-        } else {
-            nlsObj <- try(optim(startVec, opfct, opdfct1, hessian = hes, method = optMethod,
-            control = list(maxit = maxIt, reltol = relTol, parscale = psVec)), silent = silentVal)
-        }
-        options(warn = 0)
-
-        if (!inherits(nlsObj, "try-error"))
-        {
-            nlsFit <- nlsObj
-            nlsFit$convergence <- TRUE
-        } else {
-#            stop("Convergence failed")
-            warning("Convergence failed. The model was not fitted!", call. = FALSE)
-
-#            callDetail <- match.call()
-#            if (is.null(callDetail$fct)) {callDetail$fct <- substitute(l4())}
-            return(list(call = matchCall, parNames = parmVec, startVal = startVec, convergence = FALSE))
-        }
-        if (!hes) {nlsFit$hessian <- opdfct2(nlsFit$par)}
-
-    ## Derivatives are not used
-    } else {
-
-        if (constrained)
-        {
-            # print(lowerLimits)
-            # print(upperLimits)
-            # print(startVec)
-            # print(opfct)
-            # print(opfct(startVec))
-            #
-            nlsObj <- try(optim(startVec, opfct, hessian = TRUE, method = "L-BFGS-B",
-            lower = lowerLimits, upper = upperLimits,
-            control = list(maxit = maxIt, parscale = psVec, reltol = relTol, trace = traceVal)), silent = silentVal)
-            # parscale is needed for the example in methionine.Rd
-        } else {
-#            psVec <- abs(startVec)
-#            psVec[psVec<1e-4] <- 1
-
-            nlsObj <- try(optim(startVec, opfct, hessian = TRUE, method = optMethod,
-            control = list(maxit = maxIt, reltol = relTol, parscale = psVec, trace = traceVal)), silent = silentVal)
-
-#            nlsObj0 <- try(optim(startVec, opfct, method=optMethod,
-#            control=list(maxit=maxIt, reltol=relTol, parscale=psVec)), silent=TRUE)
-#            nlsObj <- try(optim(nlsObj0$par, opfct, hessian=TRUE, method=optMethod,
-#            control=list(maxit=maxIt, reltol=relTol)), silent=TRUE)
-        }
-        options(warn = 0)
-
-        if (!inherits(nlsObj, "try-error"))
-        {
-            nlsFit <- nlsObj
-            nlsFit$convergence <- TRUE
-        } else {  # to avoid an error if used in a loop
-            if (errorMessage)
-            {
-                stop("Convergence failed")
-            } else {
-                warning("Convergence failed. The model was not fitted!", call. = FALSE)
-            }
-
-#            callDetail <- match.call()
-#            if (is.null(callDetail$fct)) {callDetail$fct <- substitute(LL.4())}
-            return(list(call = matchCall, parNames = parmVec, startVal = startVec, convergence = FALSE))
-        }
-    }}
-
-#    nlsFit$ofvalue <- nlsFit$value
-    nlsFit$ovalue <- nlsFit$value  # used in the var-cov matrix ... check
-#    nlsFit$value <- opfct(nlsFit$par, scaling = FALSE)  # used in the residual variance ... check
-    nlsFit$value <- opfct(nlsFit$par)
-    nlsFit$method <- "Parametric"
-
-    ## Returning the fit
-    return(nlsFit)
 }
 

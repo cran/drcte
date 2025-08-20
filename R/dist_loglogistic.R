@@ -1,7 +1,6 @@
 "loglogistic" <- function(
 fixed = c(NA, NA, NA), names = c("b", "d", "e"))
 {
-
     ## Checking arguments
     numParm <- 3
     if (!is.character(names) | !(length(names) == numParm)) {stop("Not correct 'names' argument")}
@@ -26,7 +25,10 @@ fixed = c(NA, NA, NA), names = c("b", "d", "e"))
           y <- data[, 2]
           y <- y[x > 0]
           x <- x[x > 0]
+          y <- y[!is.na(x)]
+          x <- x[!is.na(x)]
 
+          # print(x); print(y)
 
           d <- max(y) * 1.01
 
@@ -76,7 +78,6 @@ fixed = c(NA, NA, NA), names = c("b", "d", "e"))
                      function.arg = c("b", "d", "e", "x"))
         retVec
     }
-
 
     ## Defining the ED function
     edfct <- function(parm, respl = 50, reference, type, ...)

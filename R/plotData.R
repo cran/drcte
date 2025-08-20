@@ -2,7 +2,7 @@
                      type = c("average", "all", "bars", "none", "obs", "confidence"),
                      npmle.type = c("interpolation", "midpoint", "right", "left", "none")
                      ){
-  # This function is used to explore 'drc' and 'drcte' objects
+  # This function is used to explore 'drcte' objects
   # and extract the data to be used for ggplots
   # Date of editing: 19/01/2022
   # x <- mod

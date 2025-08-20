@@ -1,0 +1,16 @@
+citHeader("To cite the package 'drcte' in publications:")
+
+bibentry(bibtype   = "Article",
+         author = c(as.person("A. Onofri"),
+         as.person("M. B. Mesgaran"),
+         as.person("C. Ritz")),,
+         title = "A unified framework for the analysis of germination, emergence, and other time-to-event data in weed science",
+         journal = "Weed Science",
+         volume = 70,
+         pages = "259-271",
+         year = 2022,
+         textVersion =
+         paste("Onofri, P., Mesgaran, M. B., & Ritz, C. (2022).",
+               "A unified framework for the analysis of germination, emergence, and other time-to-event data in weed science",
+               "Weed Science, 70, 259-271. https://doi.org/10.1017/wsc.2022.8")
+)

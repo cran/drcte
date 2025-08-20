@@ -10,22 +10,25 @@ importFrom("stats", "as.formula", "binom.test", "coef", "complete.cases",
            "na.omit", "nls", "optim", "pchisq", "plogis", "pnorm", "ppoints",
            "predict", "residuals", "terms", "deriv", "lm", "sortedXyData", "printCoefmat",
            "na.pass", "qnorm", "qt", "vcov", "quantile", "sd", "update",
-           "dnorm")
+           "dnorm", "pt")
 importFrom("utils", "head", "tail", "stack")
 importFrom("survival", "strata")
 importFrom("grDevices", "gray")
 importFrom("lmtest", "coeftest")
 importFrom("dplyr", "arrange", "select")
+importFrom("tibble", "is_tibble")
 importFrom("tidyr", "pivot_longer")
 importFrom("multcomp", "parm")
 importFrom("MASS", "ginv")
 importFrom("methods", "is")
+importFrom("car", "deltaMethod")
 
 # Exports: general
 export(drmte, drmteControl, loglogistic, loglogisticSurv,
-       lognormal, KDE, KDE.fun, NPMLE,
+       exponential, exponentialSurv,
+       lognormal, lognormalSurv, KDE, KDE.fun, NPMLE,
        compCDF, melt_te, decumulate_te, group_te, ungroup_te,
-       plotData) # jack.drcte, boot.drcte
+       plotData, compParmte, plot.drcte) # jack.drcte, boot.drcte
 
 # Hydro-time models
 # export(PmaxPsi1.fun, PmaxPsi1,

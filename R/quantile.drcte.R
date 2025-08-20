@@ -33,6 +33,7 @@ quantile.drcte <- function(x, probs, restricted = FALSE, rate = FALSE,
     respLev <- probs
   } else {
     type = "relative"
+    # This is needed for compatibility with the ED() function in 'drc'
     respLev <- probs * 100
   }
 
@@ -58,7 +59,7 @@ quantile.drcte <- function(x, probs, restricted = FALSE, rate = FALSE,
     vcov <- vcovCL(object, cluster = units)
   }
 
-
+  # print(respLev)
   ED(object, respLev, interval = interval,
      clevel = NULL, level = level, type = type,
      # bound = bound,
